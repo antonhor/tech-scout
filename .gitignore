@@ -1,0 +1,8 @@
+node_modules/
+dist/
+coverage/
+*.crx
+*.pem
+.clasp.json
+.env*
+!.env.example

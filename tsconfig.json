@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "strict": true,
+    "noEmit": true,
+    "types": ["chrome", "google-apps-script"],
+    "skipLibCheck": true
+  },
+  "include": ["src", "apps-script", "tests", "vite.config.ts"]
+}
