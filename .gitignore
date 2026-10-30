@@ -4,5 +4,8 @@ coverage/
 *.crx
 *.pem
 .clasp.json
+.clasp.deploy.json
+.clasprc*.json
+.clasp-backups/
 .env*
 !.env.example

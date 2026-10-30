@@ -51,6 +51,31 @@ npm run build
 
 Необязательный clasp: `npx @google/clasp login`, создайте локальный `.clasp.json` с `scriptId` проекта и `rootDir: "dist/apps-script"`, затем `npx @google/clasp push`. Создание/обновление deployment выполняйте отдельно через редактор или команды clasp. `.clasp.json` исключён из Git; build перед push обязателен.
 
+## Local Apps Script connection with clasp
+
+The project includes pinned `@google/clasp` and uses a separate Google credential profile named `techscout`. The ignored local `.clasp.json` binds the existing Script ID to `dist/apps-script`, so only the compiled `Code.js` and `appsscript.json` are selected for upload. Google credentials (`.clasprc*.json`) must never be committed.
+
+```sh
+npm run apps:login        # One-time Google consent for the techscout profile
+npm run apps:account      # Show the authorized account; does not print tokens
+npm run apps:status       # Preview the local files selected for upload
+npm run apps:deployments  # Read the existing project's deployments
+npm run apps:push         # Build, then upload code; does not publish a new Web App version
+npm run apps:deploy       # Publish uploaded code to the existing deployment configured locally
+```
+
+Enable the Apps Script API for the owning Google account at <https://script.google.com/home/usersettings> if Google reports that it is disabled. If an old login reports insufficient authentication scopes, authorize the dedicated profile with `npm run apps:login`; do not share OAuth callback codes, tokens or SIGNING_KEY in chat.
+
+The ignored `.clasp.deploy.json` contains both the Script ID and the existing versioned deployment ID. `apps:deploy` checks that the Script ID matches `.clasp.json` and always supplies the configured deployment ID, avoiding accidental creation of another Web App URL. Preview the target without publishing:
+
+```sh
+npm run apps:deploy -- --check
+```
+
+Normal update sequence: `npm run apps:push`, then `npm run apps:deploy`. The second command publishes the code already uploaded, rather than uploading local edits itself. Uploading replaces the remote project file set: review/back up remote-only files before the first push. An initial remote snapshot is saved under ignored `.clasp-backups/`. The local manifest retains the remote Web App's `USER_DEPLOYING` / `ANYONE_ANONYMOUS` transport settings; HMAC request authentication is unchanged. No setup function or spreadsheet migration is part of connecting clasp.
+
+Tooling note: clasp 3.4.1 currently depends on Zod 3.25.76. `npm audit` reports two high-severity findings through that upstream dependency, used by clasp's optional MCP server. This project uses the CLI commands and does not start that server. No forced major dependency override or downgrade is applied.
+
 ## Updating an existing sheet: column order migration
 
 The Companies worksheet now uses this order:

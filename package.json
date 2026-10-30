@@ -8,10 +8,17 @@
     "build": "tsc --noEmit && vite build && node scripts/build.mjs",
     "test": "vitest run",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "apps:login": "clasp --user techscout login",
+    "apps:account": "clasp --user techscout show-authorized-user",
+    "apps:status": "clasp show-file-status",
+    "apps:push": "npm run build && clasp --user techscout push",
+    "apps:deployments": "clasp --user techscout list-deployments",
+    "apps:deploy": "node scripts/deploy-apps-script.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",
+    "@google/clasp": "3.4.1",
     "@types/chrome": "^0.0.287",
     "@types/google-apps-script": "^1.0.93",
     "@types/node": "^22.20.5",
