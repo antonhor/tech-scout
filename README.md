@@ -76,6 +76,20 @@ Normal update sequence: `npm run apps:push`, then `npm run apps:deploy`. The sec
 
 Tooling note: clasp 3.4.1 currently depends on Zod 3.25.76. `npm audit` reports two high-severity findings through that upstream dependency, used by clasp's optional MCP server. This project uses the CLI commands and does not start that server. No forced major dependency override or downgrade is applied.
 
+## Extension ZIP and Google Drive releases
+
+`npm run extension:zip` builds an installable archive at `releases/techscout-extension-VERSION.zip`. The manifest is at the archive root. Only runtime JS/CSS/HTML/images/fonts and the manifest are included; Apps Script, source maps, credentials, settings, PEM keys and project sources are excluded. Node.js is not required on the receiving computer: extract the ZIP and load the folder through `chrome://extensions` → Developer mode → Load unpacked. Configure the Apps Script endpoint and session signing key separately.
+
+To publish the ZIP to Drive from this project:
+
+1. Create or choose a Google Drive folder writable by the upload account. Run `npm run drive:login` and choose that account in Google. This authorizes the separate `techscout-drive` profile with Drive file/metadata and profile scopes, leaving the Apps Script `techscout` account unchanged. Another account can be given Editor access and recipients Viewer/download access in Drive; this command does not grant, remove or alter permissions.
+2. Copy `.drive-release.json.example` to the ignored `.drive-release.json`. Replace `folderId` with the ID from `https://drive.google.com/drive/folders/FOLDER_ID`.
+3. Run `npm run extension:zip`, then `npm run drive:check` to verify the folder without uploading anything. The local configuration defaults to `authProfile: "techscout-drive"`. The upload helper reuses the pinned clasp credential loader and its token refresh handling; it never logs or copies OAuth tokens into the project. The ignored `.drive-auth/` directory contains only a local scope manifest/config for login, not tokens or code uploaded to Apps Script. It does not silently request broader Drive access. If Google denies access to this folder, stop and resolve the account/app permissions before uploading.
+4. Run `npm run drive:push`. This rebuilds, packages and uploads the ZIP as `TechScout-extension.zip`. Successful upload is confirmed against Google's returned MD5 checksum before printing a download-page link.
+5. Future pushes update the same file ID and preserve its existing sharing settings/link. The local configuration records that file ID, and the Drive file carries a private application marker. The helper refuses to overwrite unrelated files, a moved/mismatched saved target, an ambiguous set of release files, or a folder without upload access. It supports shared-drive flags but organization policies may still restrict access.
+
+Files and tokens are not committed: `releases/`, `.drive-release.json` and clasp credential files are ignored. ZIP packaging and Drive create/update/error handling have automated tests; actual cloud upload requires a configured folder and a successful access check. The optional ChatGPT Google Drive plugin is not required for these npm commands. Uploading a ZIP does not deploy Apps Script, modify spreadsheet data or install/update a browser extension automatically.
+
 ## Updating an existing sheet: column order migration
 
 The Companies worksheet now uses this order:

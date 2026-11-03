@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { createRequire } from "node:module";
-import { dirname, resolve } from "node:path";
+import { resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 import { URL, fileURLToPath } from "node:url";
 import process from "node:process";
@@ -35,9 +35,7 @@ try {
     );
   } else {
     const require = createRequire(import.meta.url);
-    const packageFile = require.resolve("@google/clasp/package.json");
-    const metadata = JSON.parse(await readFile(packageFile, "utf8"));
-    const cli = resolve(dirname(packageFile), metadata.bin.clasp);
+    const cli = require.resolve("@google/clasp");
     const result = spawnSync(process.execPath, [cli, ...args], {
       cwd: root,
       stdio: "inherit",

@@ -5,3 +5,6 @@ package-lock.json
 .clasp.json
 .clasp.deploy.json
 .clasprc*.json
+.drive-release.json
+.drive-auth/
+releases/

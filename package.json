@@ -14,7 +14,11 @@
     "apps:status": "clasp show-file-status",
     "apps:push": "npm run build && clasp --user techscout push",
     "apps:deployments": "clasp --user techscout list-deployments",
-    "apps:deploy": "node scripts/deploy-apps-script.mjs"
+    "apps:deploy": "node scripts/deploy-apps-script.mjs",
+    "extension:zip": "npm run build && node scripts/package-extension.mjs",
+    "drive:login": "node scripts/login-drive-release.mjs",
+    "drive:check": "node scripts/upload-drive-release.mjs --check",
+    "drive:push": "npm run extension:zip && node scripts/upload-drive-release.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",
@@ -25,6 +29,8 @@
     "@types/punycode": "^2.1.4",
     "esbuild": "^0.28.2",
     "eslint": "^9.0.0",
+    "fflate": "0.8.3",
+    "googleapis": "176.0.0",
     "jsdom": "^25.0.0",
     "prettier": "^3.4.0",
     "typescript": "^5.7.0",

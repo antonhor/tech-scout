@@ -7,5 +7,8 @@ coverage/
 .clasp.deploy.json
 .clasprc*.json
 .clasp-backups/
+releases/
+.drive-release.json
+.drive-auth/
 .env*
 !.env.example
