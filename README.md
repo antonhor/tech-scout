@@ -37,6 +37,45 @@ npm run build
 
 `npm run dev` запускает Vite для разработки HTML; полноценное расширение проверяйте через сборку и Reload в Chrome. `npm run format` форматирует проект. Для воспроизводимой установки после первого разрешения зависимостей используйте `npm ci` с package-lock.json.
 
+## Настройка на другом устройстве и example-файлы
+
+Если нужно **только пользоваться расширением**, скачайте готовый ZIP, распакуйте и загрузите его через `chrome://extensions`. В Settings укажите URL существующего Web App (`/exec`) и введите его текущий ключ в Session signing key. Node.js, clasp, вход в Drive и серверный `setup` для этого не нужны. Ключ нужно повторно вводить после перезапуска Chrome.
+
+Если нужно **разрабатывать проект и отправлять обновления**, клонируйте репозиторий и выполните `npm ci`. Затем подготовьте нужные настройки:
+
+| Пример в репозитории | Рабочее место настройки | Что указать |
+| --- | --- | --- |
+| `.env.example` | Памятка; необязательный локальный `.env` | Где взять Script ID, deployment ID, URL Web App и ID папки Drive |
+| `.clasp.json.example` | `.clasp.json` | `scriptId` из Apps Script → Project Settings → Script ID; `rootDir` оставить `dist/apps-script` |
+| `.clasp.deploy.json.example` | `.clasp.deploy.json` | Тот же `scriptId` и ID существующего Web App из Deploy → Manage deployments |
+| `.drive-release.json.example` | `.drive-release.json` | `folderId` из ссылки `/folders/…`; `authProfile` оставить `techscout-drive` |
+| `apps-script/.env.example` | Apps Script → Project Settings → Script Properties | `SPREADSHEET_ID` и `SIGNING_KEY`; для существующего backend оставить текущие значения |
+
+**`.env` сейчас не загружается кодом автоматически.** Это справочный шаблон, а не замена JSON-конфигурациям или Settings расширения. Переменные из него не подставляются в сборку. Не добавляйте `SIGNING_KEY` как `VITE_*` переменную: ключ должен вводиться в браузере вручную и храниться в сессионной памяти.
+
+В PowerShell из корня свежего checkout можно создать конфигурации, не перезаписывая уже заполненные:
+
+```powershell
+if (!(Test-Path -LiteralPath '.clasp.json')) { Copy-Item -LiteralPath '.clasp.json.example' -Destination '.clasp.json' }
+if (!(Test-Path -LiteralPath '.clasp.deploy.json')) { Copy-Item -LiteralPath '.clasp.deploy.json.example' -Destination '.clasp.deploy.json' }
+if (!(Test-Path -LiteralPath '.drive-release.json')) { Copy-Item -LiteralPath '.drive-release.json.example' -Destination '.drive-release.json' }
+```
+
+Замените `REPLACE_WITH_…` / `GOOGLE_DRIVE_FOLDER_ID` в созданных файлах на свои значения. `scriptId` в обеих clasp-конфигурациях должен совпадать. Не переносите OAuth-токены в примеры: выполните вход на новом устройстве заново.
+
+```sh
+npm run apps:login         # Аккаунт с доступом к существующему Apps Script
+npm run apps:account       # Проверить выбранный аккаунт
+npm run build             # Подготовить dist/apps-script и расширение
+npm run apps:status        # Проверить состав загрузки без отправки
+npm run apps:deployments   # Прочитать список существующих deployment'ов
+npm run apps:deploy -- --check  # Проверить локально выбранный deployment без публикации
+```
+
+Для отправки ZIP в Drive отдельно выполните `npm run drive:login` под аккаунтом с доступом к папке, затем `npm run extension:zip` и `npm run drive:check`. `fileId` после успешной загрузки сохраняется автоматически; выдумывать или подставлять чужой ID файла не нужно. Команды `apps:push`, `apps:deploy` и `drive:push` выполняют реальные изменения в облаке — запускайте их только когда хотите отправить обновление.
+
+Рабочие JSON-конфигурации, `.env`, OAuth-файлы, резервные копии и ZIP исключены из Git. В репозитории хранятся только примеры без персональных значений и секретов. Для смены устройства не требуется создавать новую таблицу, менять ключ, переиздавать Web App или запускать миграции.
+
 ## Создание таблицы и Apps Script: пошагово
 
 1. Создайте пустую Google-таблицу. Скопируйте ID из `https://docs.google.com/spreadsheets/d/ID/edit`.
